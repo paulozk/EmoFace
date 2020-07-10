@@ -1,11 +1,11 @@
 import tensorflow.keras as keras
 
 class CNN:
-    def __init__(self, height, width, n_classes):
-        self.model = self.build_model(height, width, n_classes)
+    def __init__(self, height, width, n_classes, learning_rate):
+        self.model = self.build_model(height, width, n_classes, learning_rate)
 
-    def build_model(self, height, width, n_classes):
-        input_layer = keras.Input(shape=(height, width))
+    def build_model(self, height, width, n_classes, learning_rate):
+        input_layer = keras.Input(shape=(height, width, 1))
 
         conv1 = keras.layers.Conv2D(filters = 25, kernel_size = (3,3), activation="relu", padding='same')(input_layer)
         max1 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv1)
@@ -27,11 +27,20 @@ class CNN:
 
         model = keras.Model(inputs=input_layer, outputs=output_layer)
 
+        model.compile(optimizer=keras.optimizers.Adam(lr=learning_rate),
+                      loss=keras.losses.categorical_crossentropy,
+                      metrics=["accuracy"])
+
         return model
 
 
-    def fit(self, X_train, y_train, X_val, y_val):
-        pass
+    def fit(self, X_train, y_train, X_val, y_val, batch_size, epochs):
+        self.model.fit(x=X_train,
+                       y=y_train,
+                       batch_size=batch_size,
+                       epochs=epochs,
+                       verbose=1,
+                       validation_data=(X_val, y_val))
 
 
     def predict(self, X):
