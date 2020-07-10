@@ -15,13 +15,15 @@ class CNN:
         max2 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv2)
         bnorm2 = keras.layers.BatchNormalization()(max2)
 
-        conv3 = keras.layers.Conv2D(filters=125, kernel_size=(3, 3), activation="relu", padding='same')(bnorm2)
+        drop1 = keras.layers.Dropout(0.3)(bnorm2)
+
+        conv3 = keras.layers.Conv2D(filters=125, kernel_size=(3, 3), activation="relu", padding='same')(drop1)
         max3 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv3)
         bnorm3 = keras.layers.BatchNormalization()(max3)
 
-        drop = keras.layers.Dropout(0.2)(bnorm3)
+        drop2 = keras.layers.Dropout(0.3)(bnorm3)
 
-        bnorm3_flat = keras.layers.Flatten()(drop)
+        bnorm3_flat = keras.layers.Flatten()(drop2)
 
         output_layer = keras.layers.Dense(n_classes, activation="softmax")(bnorm3_flat)
 

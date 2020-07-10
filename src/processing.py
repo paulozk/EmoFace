@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def read_images(path):
     data = pd.read_csv(path)
-    data = data.sample(n=1000, random_state=42)
+    #data = data.sample(n=10000, random_state=42)
     pixels = [image.split(' ') for image in data['pixels']]
     #print(pixels)
     images = np.reshape(pixels, (len(pixels), 48, 48, 1)).astype(float)

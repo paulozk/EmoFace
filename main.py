@@ -11,7 +11,7 @@ def train_model(path):
               y_train,
               X_val,
               y_val,
-              batch_size=128,
+              batch_size=512,
               epochs=100)
 
 
