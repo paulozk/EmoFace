@@ -2,7 +2,8 @@ import tensorflow.keras as keras
 
 class CNN:
     def __init__(self, height, width, n_classes, learning_rate):
-        self.model = self.build_model(height, width, n_classes, learning_rate)
+        #self.model = self.build_model(height, width, n_classes, learning_rate)
+        self.model = self.build_model_pretrained(height, width, n_classes, learning_rate)
 
     def build_model(self, height, width, n_classes, learning_rate):
         input_layer = keras.Input(shape=(height, width, 1))
@@ -15,15 +16,15 @@ class CNN:
         max2 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv2)
         bnorm2 = keras.layers.BatchNormalization()(max2)
 
-        drop1 = keras.layers.Dropout(0.3)(bnorm2)
+        #drop1 = keras.layers.Dropout(0.3)(bnorm2)
 
-        conv3 = keras.layers.Conv2D(filters=125, kernel_size=(3, 3), activation="relu", padding='same')(drop1)
+        conv3 = keras.layers.Conv2D(filters=125, kernel_size=(3, 3), activation="relu", padding='same')(bnorm2)
         max3 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv3)
         bnorm3 = keras.layers.BatchNormalization()(max3)
 
-        drop2 = keras.layers.Dropout(0.3)(bnorm3)
+        drop = keras.layers.Dropout(0.7)(bnorm3)
 
-        bnorm3_flat = keras.layers.Flatten()(drop2)
+        bnorm3_flat = keras.layers.Flatten()(drop)
 
         output_layer = keras.layers.Dense(n_classes, activation="softmax")(bnorm3_flat)
 
@@ -34,6 +35,24 @@ class CNN:
                       metrics=["accuracy"])
 
         return model
+
+
+    def build_model_pretrained(self, height, width, n_classes, learning_rate):
+        input_layer = keras.Input(shape=(height, width, 1))
+        model = keras.applications.ResNet50V2(
+            include_top=False, weights='imagenet', input_tensor=input_layer, input_shape=None,
+            pooling=None)
+
+        output_layer = keras.layers.Dense(n_classes, activation="softmax")
+
+        model = keras.Model(inputs=input_layer, outputs=output_layer)
+
+        model.compile(optimizer=keras.optimizers.Adam(lr=learning_rate),
+                      loss=keras.losses.categorical_crossentropy,
+                      metrics=["accuracy"])
+
+        return model
+
 
 
     def fit(self, X_train, y_train, X_val, y_val, batch_size, epochs):
@@ -48,4 +67,9 @@ class CNN:
     def predict(self, X):
         pass
 
+    def store_weights(self, path):
+        self.model.save(path)
+
+    def load_weights(self, path):
+        self.load_weights(path)
 
