@@ -1,8 +1,13 @@
 import tensorflow.keras as keras
+from src.processing import FaceExtractor
+import cv2
+import numpy as np
 
 class CNN:
     def __init__(self, height, width, n_classes, learning_rate):
         self.model = self.build_model(height, width, n_classes, learning_rate)
+        self.height = height
+        self.width = width
         #self.model = self.build_model_pretrained(height, width, n_classes, learning_rate)
 
     def build_model(self, height, width, n_classes, learning_rate):
@@ -15,8 +20,6 @@ class CNN:
         conv2 = keras.layers.Conv2D(filters=50, kernel_size=(3, 3), activation="relu", padding='same')(bnorm)
         max2 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv2)
         bnorm2 = keras.layers.BatchNormalization()(max2)
-
-        #drop1 = keras.layers.Dropout(0.3)(bnorm2)
 
         conv3 = keras.layers.Conv2D(filters=125, kernel_size=(3, 3), activation="relu", padding='same')(bnorm2)
         max3 = keras.layers.MaxPooling2D(pool_size=(3, 3))(conv3)
@@ -64,12 +67,31 @@ class CNN:
                        validation_data=(X_val, y_val))
 
 
-    def predict(self, X):
-        pass
+    def predict(self, img):
+        faceExtractor = FaceExtractor()
+        face_img = faceExtractor.crop_face(img)
+        face_img = cv2.flip(face_img, 0)
+        img_resized = cv2.resize(face_img, (48, 48))
+        img_std = img_resized / 255.0
+        input_img = np.expand_dims(img_std, axis=[0, 3])
+        prediction = self.model.predict(input_img)
+        return prediction
+
+
+    def show_output(self, prediction):
+        output = {
+            'Angry': np.round(prediction[0][0] * 100, 1),
+            'Disgusted': np.round(prediction[0][1] * 100, 1),
+            'Fear': np.round(prediction[0][2] * 100, 1),
+            'Happy': np.round(prediction[0][3] * 100, 1),
+            'Sad': np.round(prediction[0][4] * 100, 1),
+            'Surprised': np.round(prediction[0][5] * 100, 1),
+            'Neutral': np.round(prediction[0][6] * 100, 1),
+        }
+        print(output)
 
     def store_weights(self, path):
         self.model.save(path)
 
     def load_weights(self, path):
         self.load_weights(path)
-

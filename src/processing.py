@@ -1,18 +1,11 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-#import sklearn.preprocessing import StandardScaler
+import cv2
 
 def read_images(path):
     data = pd.read_csv(path)
-    #data = data.sample(n=10000, random_state=42)
     pixels = [image.split(' ') for image in data['pixels']]
-    #print(pixels)
     images = np.reshape(pixels, (len(pixels), 48, 48, 1)).astype(float)
-    #for i in range(5):
-    #    plt.imshow(images[i], cmap='gray')
-    #    plt.show()
-
     return images, data['emotion'], data['Usage']
 
 def get_splits(images, labels, splits):
@@ -28,7 +21,6 @@ def preprocess(filepath):
     labels = pd.get_dummies(labels)
     X_train, y_train, X_val, y_val, X_test, y_test = get_splits(images, labels, splits)
 
-    #normalize
     X_train /= 255.0
     X_val /= 255.0
     X_test /= 255.0
@@ -36,9 +28,18 @@ def preprocess(filepath):
     return X_train, y_train, X_val, y_val, X_test, y_test
 
 
+class FaceExtractor:
+    def __init__(self):
+        self.face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
+    def detect(self, img):
+        return self.face_cascade.detectMultiScale(img, 1.3, 5)
 
-
+    def crop_face(self, img):
+        faces = self.detect(img)
+        x,y,width,height = faces[0]
+        cropped_image = img[y:y+height, x:x+width]
+        return cropped_image
 
 
 
