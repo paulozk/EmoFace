@@ -2,8 +2,8 @@ import tensorflow.keras as keras
 
 class CNN:
     def __init__(self, height, width, n_classes, learning_rate):
-        #self.model = self.build_model(height, width, n_classes, learning_rate)
-        self.model = self.build_model_pretrained(height, width, n_classes, learning_rate)
+        self.model = self.build_model(height, width, n_classes, learning_rate)
+        #self.model = self.build_model_pretrained(height, width, n_classes, learning_rate)
 
     def build_model(self, height, width, n_classes, learning_rate):
         input_layer = keras.Input(shape=(height, width, 1))
