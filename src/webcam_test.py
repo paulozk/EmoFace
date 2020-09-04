@@ -1,13 +1,12 @@
 import cv2
 from src.processing import *
 from src.model import *
-import sys
 import time
 
 # init CNN
+weights_path = 'data/weights.h5'
 model = CNN(height=48, width=48, n_classes=7, learning_rate=0.001)
-model.load_model('weights\weights.h5')
-# init webcam
+model.load_model(weights_path)
 cap = cv2.VideoCapture(0)
 # init face extractor
 extractor = FaceExtractor()
@@ -15,7 +14,7 @@ extractor = FaceExtractor()
 font = cv2.FONT_HERSHEY_SIMPLEX
 bottomLeftCornerOfText = (30, 200)
 fontScale = 1
-fontColor = (255, 255, 255)
+fontColor = (255, 0, 0)
 lineType = 2
 
 while(True):
@@ -29,7 +28,6 @@ while(True):
         cv2.rectangle(frame, (face[0], face[1]), (face[0] + face[2], face[1] + face[3]), (255, 0, 0), 2)
         emotion = model.predict(gray)
 
-
         cv2.putText(frame, model.show_output(emotion),
                     bottomLeftCornerOfText,
                     font,
@@ -38,8 +36,6 @@ while(True):
                     lineType)
 
         time.sleep(0.1)
-
-
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
