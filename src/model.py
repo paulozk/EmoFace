@@ -2,6 +2,7 @@ import tensorflow.keras as keras
 from src.processing import FaceExtractor
 import cv2
 import numpy as np
+import operator
 
 class CNN:
     def __init__(self, height, width, n_classes, learning_rate):
@@ -70,7 +71,7 @@ class CNN:
     def predict(self, img):
         faceExtractor = FaceExtractor()
         face_img = faceExtractor.crop_face(img)
-        face_img = cv2.flip(face_img, 0)
+        #face_img = cv2.flip(face_img, 0)
         img_resized = cv2.resize(face_img, (48, 48))
         img_std = img_resized / 255.0
         input_img = np.expand_dims(img_std, axis=[0, 3])
@@ -88,10 +89,14 @@ class CNN:
             'Surprised': np.round(prediction[0][5] * 100, 1),
             'Neutral': np.round(prediction[0][6] * 100, 1),
         }
-        print(output)
+
+        #print(output)
+        print(max(output, key=output.get))
+
+        return max(output, key=output.get)
 
     def store_weights(self, path):
         self.model.save(path)
 
-    def load_weights(self, path):
-        self.load_weights(path)
+    def load_model(self, path):
+        self.model.load_weights(path)
